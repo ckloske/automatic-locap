@@ -1,0 +1,23 @@
+{
+  "name": "automatic-locap",
+  "version": "1.0.0",
+  "description": "Awesome automatic trading algorithm for lo-cap cryptocurrency pairs",
+  "main": "./src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ckloske/automatic-locap.git"
+  },
+  "author": "Carlos Kloske",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ckloske/automatic-locap/issues"
+  },
+  "homepage": "https://github.com/ckloske/automatic-locap#readme",
+  "dependencies": {
+    "mathjs": "^9.2.0",
+    "node-binance-api": "^0.12.4"
+  }
+}
