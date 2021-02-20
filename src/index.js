@@ -9,11 +9,12 @@ binance.options({
   test: false,
 });
 
-const STARTING_AMOUNT = 0.001;
-const PAIR = process.argv[2] || 'TROYBTC';
+const STARTING_AMOUNT = 0.01;
+const PAIR = process.argv[2] || 'BNBBTC';
 const INTERVAL = '1m';
-const SAMPLES = 5;
-const STD_FACTOR = 1 / 2;
+const SAMPLES = 10;
+const STD_FACTOR = 2;
+const SELL_LIMIT_PCT = 1.5;
 
 let isLong = false;
 let isLocked = false;
@@ -22,30 +23,40 @@ let buyQuantity = 0;
 let availableAmount = STARTING_AMOUNT;
 let lastOrderID = 0;
 
+const log = (message) => {
+  const now = new Date();
+  console.log(`${now}, ${message}`);
+}
+
 const tradeCallback = (data) => {
-  // console.log(data)
-  let { x: executionType, s: symbol, p: price, q: quantity, S: side, o: orderType, i: orderId, X: orderStatus } = data;
+  // log(data)
+  let { x: executionType, s: symbol, p: price, q: quantity, S: side, o: orderType, i: orderId, X: orderStatus, l: lastQuantity, L: lastPrice } = data;
   if (lastOrderID === orderId) {
     let direction = side === 'BUY' ? -1 : +1;
     if (orderStatus == 'REJECTED') {
-      console.log(`${pair}: Order ${orderId} failed. Reason: ${data.r}`);
+      log(`${PAIR}: Order ${orderId} failed. Reason: ${data.r}`);
       isLocked = false;
     } else if (orderStatus === 'CANCELED') {
-      console.log(`${pair}: Order ${orderId} canceled manually.`)
+      log(`${PAIR}: Order ${orderId} canceled manually.`)
       buyPrice = 0;
       buyQuantity = 0;
       isLong = false;
       isLocked = false;
     } else if (orderStatus == 'PARTIALLY_FILLED') {
-      availableAmount += direction * (quantity * price);
-      console.log(`${pair}: Order ${orderId} partially executed. ${side} ${orderType} ${quantity} @ ${price}. Available: ${availableAmount}.`);
+      availableAmount += direction * (lastQuantity * lastPrice);
+      log(`${PAIR}: Order ${orderId} partially executed. ${side} ${orderType} ${quantity} @ ${price}. Available: ${availableAmount}.`);
     } else if (orderStatus == 'FILLED') {
-      availableAmount += direction * (quantity * price);
-      console.log(`${pair}: Order ${orderId} fully executed. ${side} ${orderType} ${quantity} @ ${price}. Available: ${availableAmount}.`);
+      availableAmount += direction * (lastQuantity * lastPrice);
+      log(`${PAIR}: Order ${orderId} fully executed. ${side} ${orderType} ${quantity} @ ${price}. Available: ${availableAmount}.`);
+      if (side === 'SELL') {
+        log(`Profit: ${(((quantity * price) / STARTING_AMOUNT) - 1) * 100}%`);
+      }
       buyPrice = side === 'BUY' ? price : 0;
       buyQuantity = side === 'BUY' ? quantity : 0;
-      isLong = false;
+      isLong = side === 'BUY';
       isLocked = false;
+    } else {
+      console.warn(`${PAIR}: Ignored status ${orderStatus}`)
     }
   }
 }
@@ -76,7 +87,7 @@ function autoTrade(pair, interval, chart) {
         if (res.status === 'NEW') {
           availableAmount -= res.executedQty * res.price;
           lastOrderID = res.orderId;
-          console.log(`${pair}: Order ${res.orderId} created. ${res.side} ${res.type} ${res.origQty} @ ${res.price}.`);
+          log(`${PAIR}: Order ${res.orderId} created. ${res.side} ${res.type} ${res.origQty} @ ${res.price}.`);
         } else if (res.status === 'FILLED') {
           availableAmount -= res.executedQty * res.price;
           isLong = true;
@@ -84,17 +95,17 @@ function autoTrade(pair, interval, chart) {
           buyPrice = res.price;
           buyQuantity = res.quantity;
           lastOrderID = 0;
-          console.log(`${pair}: Order ${res.orderId} fully executed. ${res.side} ${res.type} ${res.origQty} @ ${res.price}.`);
+          log(`${PAIR}: Order ${res.orderId} fully executed. ${res.side} ${res.type} ${res.origQty} @ ${res.price}.`);
         } else {
-          console.warn(`${pair}: Unexpected status ${res.status}`)
+          console.warn(`${PAIR}: Unexpected status ${res.status}`)
           isLocked = false;
         }
 
       })
-      .catch(console.log);
+      .catch(log);
   } else if (
     lastClosePrice >= hiBand
-    && (lastClosePrice / buyPrice) > 1.02
+    && (lastClosePrice / buyPrice) > (SELL_LIMIT_PCT / 100) + 1
     && isLong
     && !isLocked) {
     isLocked = true;
@@ -102,7 +113,7 @@ function autoTrade(pair, interval, chart) {
       .then((res) => {
         if (res.status === 'NEW') {
           lastOrderID = res.orderId;
-          console.log(`${pair}: Order ${res.orderId} created. ${res.side} ${res.type} ${res.origQty} @ ${res.price}.`);
+          log(`${PAIR}: Order ${res.orderId} created. ${res.side} ${res.type} ${res.origQty} @ ${res.price}.`);
         } else if (res.status === 'FILLED') {
           availableAmount += res.executedQty * res.price;
           isLong = false;
@@ -110,19 +121,19 @@ function autoTrade(pair, interval, chart) {
           buyPrice = 0;
           buyQuantity = 0;
           lastOrderID = 0;
-          console.log(`${pair}: Order ${res.orderId} fully executed. ${res.side} ${res.type} ${res.origQty} @ ${res.price}.`);
+          log(`${PAIR}: Order ${res.orderId} fully executed. ${res.side} ${res.type} ${res.origQty} @ ${res.price}.`);
         } else {
-          console.warn(`${pair}: Unexpected status ${res.status}`)
+          console.warn(`${PAIR}: Unexpected status ${res.status}`)
           isLocked = false;
         }
 
       })
-      .catch(console.log);
+      .catch(log);
 
   } else {
     let message = isLong ? 'Waiting for opportunity to sell' : 'Waiting for opportunity to buy';
     message = isLocked ? 'Waiting order to be executed' : message;
-    console.info(`${pair}: ${interval}. ${message}. Close: ${lastClosePrice}, Hi/Lo: ${hiBand}/${loBand}`);
+    // console.info(`${PAIR}: ${interval}. ${message}. Close: ${lastClosePrice}, Hi/Lo: ${hiBand}/${loBand}`);
   }
 };
 
@@ -148,6 +159,8 @@ binance.exchangeInfo(function (error, data) {
     minimums[obj.symbol] = filters;
   }
   global.filters = minimums;
+
+  log(`${PAIR} started with ${STARTING_AMOUNT}.`)
 
   binance.websockets.userData(() => null, tradeCallback)
   binance.websockets.chart(PAIR, INTERVAL, autoTrade);
