@@ -12,12 +12,12 @@ binance.options({
   test: false,
 });
 
-const PAIR = process.argv[2] || 'BNBBTC';
+const PAIR = process.argv[2] || 'BNBBUSD';
 const STARTING_AMOUNT = process.argv[3] || 0.01;
-const INTERVAL = process.argv[4] || '1m';
-const STD_FACTOR = process.argv[5] || 1.8;
-const SELL_LIMIT_PCT = process.argv[6] || 1.5;
-const SAMPLES = process.argv[7] || 10;
+const INTERVAL = '1m';
+const STD_FACTOR = process.argv[4] || 1.8;
+const SAMPLES = process.argv[5] || 10;
+const SELL_LIMIT_PCT = process.argv[6] || 2;
 
 let isLong = false;
 let isLocked = false;
@@ -46,19 +46,18 @@ const tradeCallback = (data) => {
       isLong = false;
       isLocked = false;
     } else if (orderStatus == 'PARTIALLY_FILLED') {
-      log(`Order ${orderId} partially executed. ${side} ${orderType} ${quantity} @ ${price}. Available: ${availableAmount}`);
+      log(`Order ${orderId} partially executed. ${side} ${orderType} ${quantity} @ ${price}.`);
     } else if (orderStatus == 'FILLED') {
       availableAmount = availableAmount + (direction * (quantity * price));
-      log(`Order ${orderId} fully executed. ${side} ${orderType} ${quantity} @ ${price}. Available: ${availableAmount}`);
+      log(`Order ${orderId} fully executed. ${side} ${orderType} ${quantity} @ ${price}.`);
       if (side === 'SELL') {
-        log(`Profit: ${(((quantity * price) / STARTING_AMOUNT) - 1) * 100}%`);
+        log(`Profit: ${((availableAmount / STARTING_AMOUNT) - 1) * 100}%. Available: ${availableAmount}`);
       }
       buyPrice = side === 'BUY' ? price : 0;
       buyQuantity = side === 'BUY' ? quantity : 0;
       isLong = side === 'BUY';
       isLocked = false;
     } else if (orderStatus == 'NEW') {
-      lastOrderID = res.orderId;
       log(`Order ${res.orderId} in book`);
     } else {
       log(`Ignored status ${orderStatus}`)
@@ -81,18 +80,19 @@ function autoTrade(pair, interval, chart) {
   const loBand = binance.roundTicks(sampleMean - sampleStd, FILTERS.tickSize);
   const quantity = binance.roundStep(availableAmount / lastClosePrice, FILTERS.stepSize);
 
-  if (
-    quantity < FILTERS.minQty
-    || quantity > FILTERS.maxQty
-    || quantity * lastClosePrice < FILTERS.minNotional
-  ) {
-    let message = quantity * lastClosePrice < FILTERS.minNotional ?
-      `Minimum notional value: ${quantity * lastClosePrice} < ${FILTERS.minNotional}`
-      : `Quantity out of bounds: ${quantity}`
-    log(message);
-    log(`Shutting down`);
-    process.exit(22)
-  }
+  // if (
+  //   (quantity < FILTERS.minQty
+  //     || quantity > FILTERS.maxQty
+  //     || quantity * lastClosePrice < FILTERS.minNotional)
+  //   && !isLocked
+  // ) {
+  //   let message = quantity * lastClosePrice < FILTERS.minNotional ?
+  //     `Minimum notional value: ${quantity * lastClosePrice} < ${FILTERS.minNotional}`
+  //     : `Quantity out of bounds: ${quantity}`
+  //   log(message);
+  //   log(`Shutting down`);
+  //   process.exit(22)
+  // }
 
   if (
     quantity >= FILTERS.minQty
