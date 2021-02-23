@@ -19,8 +19,8 @@ const accumulatedProfitMetric = io.metric({
 })
 
 const availableAmountMetric = io.metric({
-  name: 'Accumulated Profit',
-  id: 'app/profit',
+  name: 'Available Amount',
+  id: 'app/amount',
 })
 
 const sellCyclesMetric = io.counter({
