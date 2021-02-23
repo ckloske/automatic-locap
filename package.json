@@ -2,9 +2,9 @@
   "name": "automatic-locap",
   "version": "1.0.0",
   "description": "Awesome automatic trading algorithm for lo-cap cryptocurrency pairs",
-  "main": "./src/index.js",
+  "main": "src/index.js",
   "scripts": {
-    "start": "node ./src/index.js"
+    "start": "node src/index.js"
   },
   "repository": {
     "type": "git",
