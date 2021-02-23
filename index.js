@@ -8,12 +8,16 @@ pm2.connect(function (err) {
   }
 
   for (const [key, value] of Object.entries(config)) {
-    const args = [value.startingAmount, value.interval, value.stdFactor, value.samples, value.minimumPct];
+
+    const args = [key, value.startingAmount, value.interval, value.stdFactor, value.samples, value.minimumPct];
     const options = {
       script: './src/autotrade.js',
       name: key,
       args
     };
+
+    console.dir(options);
+
     pm2.start(options, function (err, apps) {
       pm2.disconnect();   // Disconnects from PM2
       if (err) throw err
