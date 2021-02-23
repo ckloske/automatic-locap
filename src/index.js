@@ -1,5 +1,6 @@
 const Binance = require('node-binance-api');
 const chalk = require('chalk');
+const io = require('@pm2/io')
 const { mean, std } = require('mathjs');
 
 const y = chalk.yellow;
@@ -11,6 +12,27 @@ binance.options({
   useServerTime: true,
   test: false,
 });
+
+const accumulatedProfitMetric = io.metric({
+  name: 'Accumulated Profit',
+  id: 'app/profit',
+})
+
+const availableAmountMetric = io.metric({
+  name: 'Accumulated Profit',
+  id: 'app/profit',
+})
+
+const sellCyclesMetric = io.counter({
+  name: 'Sell Cycles',
+  id: 'app/sales'
+});
+
+const lastPriceMetric = io.metric({
+  name: 'Last Price',
+  id: 'app/price'
+});
+
 
 const PAIR = process.argv[2] || 'BNBBUSD';
 const STARTING_AMOUNT = process.argv[3] || 0.01;
@@ -50,8 +72,12 @@ const tradeCallback = (data) => {
     } else if (orderStatus == 'FILLED') {
       availableAmount = availableAmount + (direction * (quantity * price));
       log(`Order ${orderId} fully executed. ${side} ${orderType} ${quantity} @ ${price}.`);
+      availableAmountMetric.set(availableAmount);
       if (side === 'SELL') {
-        log(`Profit: ${((availableAmount / STARTING_AMOUNT) - 1) * 100}%. Available: ${availableAmount}`);
+        const profit = ((availableAmount / STARTING_AMOUNT) - 1) * 100;
+        sellCyclesMetric.inc();
+        accumulatedProfitMetric.set(profit);
+        log(`Profit: ${profit}%. Available: ${availableAmount}`);
       }
       buyPrice = side === 'BUY' ? price : 0;
       buyQuantity = side === 'BUY' ? quantity : 0;
@@ -70,6 +96,8 @@ function autoTrade(pair, interval, chart) {
   const lastPrices = [chart[tick].open, chart[tick].close]
   const lastClosePrice = chart[tick].close;
   let ohlc = binance.ohlc(chart);
+
+  lastPriceMetric.set(lastClosePrice);
 
   const FILTERS = global.filters[pair];
 

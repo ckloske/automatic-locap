@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/ckloske/automatic-locap#readme",
   "dependencies": {
+    "@pm2/io": "^4.3.5",
     "chalk": "^4.1.0",
     "mathjs": "^9.2.0",
     "node-binance-api": "^0.12.4"
