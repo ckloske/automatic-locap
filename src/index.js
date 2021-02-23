@@ -35,9 +35,9 @@ const lastPriceMetric = io.metric({
 
 
 const PAIR = process.argv[2] || 'BNBBUSD';
-const STARTING_AMOUNT = process.argv[3] || 0.01;
+const STARTING_AMOUNT = process.argv[3] || 1;
 const INTERVAL = '1m';
-const STD_FACTOR = process.argv[4] || 1.8;
+const STD_FACTOR = process.argv[4] || 2;
 const SAMPLES = process.argv[5] || 10;
 const SELL_LIMIT_PCT = process.argv[6] || 2;
 

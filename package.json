@@ -4,8 +4,8 @@
   "description": "Awesome automatic trading algorithm for lo-cap cryptocurrency pairs",
   "main": "./src/index.js",
   "scripts": {
-    "start": "pm2 start ./src/index.js",
-    "stop": "pm2 stop"
+    "start": "pm2 start ./src/index.js -- ",
+    "stop": "pm2 stop "
   },
   "repository": {
     "type": "git",
