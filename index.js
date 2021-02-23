@@ -1,6 +1,8 @@
 const pm2 = require('pm2');
 const config = require('./config.json');
 
+console.log(config);
+
 pm2.connect(function (err) {
   if (err) {
     console.error(err);
@@ -10,13 +12,14 @@ pm2.connect(function (err) {
   for (const [key, value] of Object.entries(config)) {
 
     const args = [key, value.startingAmount, value.interval, value.stdFactor, value.samples, value.minimumPct];
+
     const options = {
       script: './src/autotrade.js',
       name: key,
       args
     };
 
-    console.dir(options);
+    console.log(options);
 
     pm2.start(options, function (err, apps) {
       pm2.disconnect();   // Disconnects from PM2
@@ -26,7 +29,7 @@ pm2.connect(function (err) {
   }
 
   pm2.list((err, list) => {
-    console.log(err, list)
+    console.log(list)
   })
 
 });
