@@ -1,0 +1,9 @@
+{
+  "BNBBUSD": {
+    "startingAmount": 10,
+    "interval": "1m",
+    "stdFactor": 2,
+    "samples": 20,
+    "minimumPct": 2
+  }
+}

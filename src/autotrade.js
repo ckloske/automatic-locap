@@ -93,7 +93,7 @@ const tradeCallback = (data) => {
 
 function autoTrade(pair, interval, chart) {
   let tick = binance.last(chart);
-  const lastPrices = [chart[tick].open, chart[tick].close]
+  const lastPrices = [chart[tick].open, chart[tick].close];
   const lastClosePrice = chart[tick].close;
   let ohlc = binance.ohlc(chart);
 
