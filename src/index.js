@@ -54,7 +54,7 @@ const log = (message) => {
 }
 
 const tradeCallback = (data) => {
-  log(data)
+  // log(data)
   let { x: executionType, s: symbol, p: price, q: quantity, S: side, o: orderType, i: orderId, X: orderStatus, l: lastQuantity, L: lastPrice } = data;
   if (lastOrderID === orderId) {
     let direction = side === 'BUY' ? -1 : +1;
@@ -108,20 +108,6 @@ function autoTrade(pair, interval, chart) {
   const loBand = binance.roundTicks(sampleMean - sampleStd, FILTERS.tickSize);
   const quantity = binance.roundStep(availableAmount / lastClosePrice, FILTERS.stepSize);
 
-  // if (
-  //   (quantity < FILTERS.minQty
-  //     || quantity > FILTERS.maxQty
-  //     || quantity * lastClosePrice < FILTERS.minNotional)
-  //   && !isLocked
-  // ) {
-  //   let message = quantity * lastClosePrice < FILTERS.minNotional ?
-  //     `Minimum notional value: ${quantity * lastClosePrice} < ${FILTERS.minNotional}`
-  //     : `Quantity out of bounds: ${quantity}`
-  //   log(message);
-  //   log(`Shutting down`);
-  //   process.exit(22)
-  // }
-
   if (
     quantity >= FILTERS.minQty
     && quantity <= FILTERS.maxQty
@@ -133,7 +119,7 @@ function autoTrade(pair, interval, chart) {
     isLocked = true;
     binance.buy(pair, quantity, lastClosePrice)
       .then((res) => {
-        log(res);
+        // log(res);
         log(`Order ${res.orderId} created. ${res.side} ${res.type} ${res.origQty} @ ${res.price}`);
         if (res.status === 'NEW') {
           lastOrderID = res.orderId;
@@ -145,11 +131,16 @@ function autoTrade(pair, interval, chart) {
           buyPrice = res.price;
           buyQuantity = res.executedQty;
           lastOrderID = 0;
+
+          const profit = ((availableAmount / STARTING_AMOUNT) - 1) * 100;
+          sellCyclesMetric.inc();
+          accumulatedProfitMetric.set(profit);
+
           log(`Order ${res.orderId} fully executed. Available: ${availableAmount}`);
         } else if (orderStatus == 'PARTIALLY_FILLED') {
           log(`Order ${orderId} partially executed. ${side} ${orderType} ${quantity} @ ${price}. Available: ${availableAmount}`);
         } else {
-          console.warn(`Ignored status ${res.status}`)
+          log(`Ignored status ${res.status}`)
           isLocked = false;
         }
 
@@ -163,7 +154,7 @@ function autoTrade(pair, interval, chart) {
     isLocked = true;
     binance.sell(pair, buyQuantity, lastClosePrice)
       .then((res) => {
-        log(res);
+        // log(res);
         log(`Order ${res.orderId} created. ${res.side} ${res.type} ${res.origQty} @ ${res.price}`);
         if (res.status === 'NEW') {
           lastOrderID = res.orderId;
@@ -175,6 +166,8 @@ function autoTrade(pair, interval, chart) {
           buyPrice = 0;
           buyQuantity = 0;
           lastOrderID = 0;
+          availableAmountMetric.set(availableAmount);
+          sellCyclesMetric.inc();
           log(`Order ${res.orderId} fully executed. Available: ${availableAmount}`);
         } else if (orderStatus == 'PARTIALLY_FILLED') {
           log(`Order ${orderId} partially executed. ${side} ${orderType} ${quantity} @ ${price}. Available: ${availableAmount}`);
@@ -188,7 +181,6 @@ function autoTrade(pair, interval, chart) {
   } else {
     let message = isLong ? 'Waiting for opportunity to sell' : 'Waiting for opportunity to buy';
     message = isLocked ? 'Waiting order to be executed' : message;
-    // console.info(`${interval}. ${message}. Close: ${lastClosePrice}, Hi/Lo: ${hiBand}/${loBand}`);
   }
 
 };
