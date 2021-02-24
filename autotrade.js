@@ -33,13 +33,15 @@ const lastPriceMetric = io.metric({
   id: 'app/price'
 });
 
+console.log()
+
 
 const PAIR = process.argv[2] || 'BNBBUSD';
 const STARTING_AMOUNT = process.argv[3] || 1;
-const INTERVAL = '1m';
-const STD_FACTOR = process.argv[4] || 2;
-const SAMPLES = process.argv[5] || 10;
-const SELL_LIMIT_PCT = process.argv[6] || 1;
+const INTERVAL = process.argv[4] || '1m';
+const STD_FACTOR = process.argv[5] || 2;
+const SAMPLES = process.argv[6] || 10;
+const SELL_LIMIT_PCT = process.argv[7] || 1;
 
 let isLong = false;
 let isLocked = false;
