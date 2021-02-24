@@ -14,7 +14,7 @@ pm2.connect(function (err) {
     const args = [key, value.startingAmount, value.interval, value.stdFactor, value.samples, value.minimumPct];
 
     const options = {
-      script: 'autotrade.js',
+      script: './autotrade.js',
       name: key,
       args
     };
