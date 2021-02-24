@@ -1,5 +1,5 @@
 const pm2 = require('pm2');
-const config = require('./config.json');
+const config = require('config.json');
 
 console.log(config);
 
@@ -14,7 +14,7 @@ pm2.connect(function (err) {
     const args = [key, value.startingAmount, value.interval, value.stdFactor, value.samples, value.minimumPct];
 
     const options = {
-      script: 'src/autotrade.js',
+      script: 'autotrade.js',
       name: key,
       args
     };

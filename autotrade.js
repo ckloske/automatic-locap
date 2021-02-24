@@ -39,7 +39,7 @@ const STARTING_AMOUNT = process.argv[3] || 1;
 const INTERVAL = '1m';
 const STD_FACTOR = process.argv[4] || 2;
 const SAMPLES = process.argv[5] || 10;
-const SELL_LIMIT_PCT = process.argv[6] || 2;
+const SELL_LIMIT_PCT = process.argv[6] || 1;
 
 let isLong = false;
 let isLocked = false;
