@@ -1,0 +1,23 @@
+{
+  "FTMBNB": {
+    "startingAmount": 1,
+    "interval": "1m",
+    "stdFactor": 2,
+    "samples": 15,
+    "minimumPct": 2
+  },
+  "ADABNB": {
+    "startingAmount": 1,
+    "interval": "1m",
+    "stdFactor": 2,
+    "samples": 15,
+    "minimumPct": 2
+  },
+  "BNBBUSD": {
+    "startingAmount": 300,
+    "interval": "1m",
+    "stdFactor": 2,
+    "samples": 15,
+    "minimumPct": 2
+  }
+}
