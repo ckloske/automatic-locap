@@ -133,10 +133,8 @@ function autoTrade(pair, interval, chart) {
           buyPrice = res.price;
           buyQuantity = res.executedQty;
           lastOrderID = 0;
-
+          availableAmountMetric.set(availableAmount);
           const profit = ((availableAmount / STARTING_AMOUNT) - 1) * 100;
-          sellCyclesMetric.inc();
-          accumulatedProfitMetric.set(profit);
 
           log(`Order ${res.orderId} fully executed. Available: ${availableAmount}`);
         } else if (orderStatus == 'PARTIALLY_FILLED') {
@@ -169,6 +167,7 @@ function autoTrade(pair, interval, chart) {
           buyQuantity = 0;
           lastOrderID = 0;
           availableAmountMetric.set(availableAmount);
+          accumulatedProfitMetric.set(profit);
           sellCyclesMetric.inc();
           log(`Order ${res.orderId} fully executed. Available: ${availableAmount}`);
         } else if (orderStatus == 'PARTIALLY_FILLED') {
