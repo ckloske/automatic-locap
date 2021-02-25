@@ -1,9 +1,30 @@
 {
-  "BAKEBNB": {
+  "CAKEBNB": {
     "startingAmount": 1,
     "interval": "1m",
     "stdFactor": 2,
     "samples": 15,
     "minimumPct": 2
+  },
+  "ADABNB": {
+    "startingAmount": 1,
+    "interval": "1m",
+    "stdFactor": 2,
+    "samples": 15,
+    "minimumPct": 2
+  },
+  "FTMBNB": {
+    "startingAmount": 1,
+    "interval": "1m",
+    "stdFactor": 2,
+    "samples": 15,
+    "minimumPct": 2
+  },
+  "BAKEBNB": {
+    "startingAmount": 1,
+    "interval": "1m",
+    "stdFactor": 2,
+    "samples": 15,
+    "minimumPct": 1.4
   }
 }
