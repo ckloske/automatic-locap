@@ -86,7 +86,7 @@ const tradeCallback = (data) => {
       isLong = side === 'BUY';
       isLocked = false;
     } else if (orderStatus == 'NEW') {
-      log(`Order ${res.orderId} in book`);
+      log(`Order ${orderId} in book`);
     } else {
       log(`Ignored status ${orderStatus}`)
     }
