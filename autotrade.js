@@ -137,8 +137,8 @@ function autoTrade(pair, interval, chart) {
           const profit = ((availableAmount / STARTING_AMOUNT) - 1) * 100;
 
           log(`Order ${res.orderId} fully executed. Available: ${availableAmount}`);
-        } else if (orderStatus == 'PARTIALLY_FILLED') {
-          log(`Order ${orderId} partially executed. ${side} ${orderType} ${quantity} @ ${price}. Available: ${availableAmount}`);
+        } else if (res.status == 'PARTIALLY_FILLED') {
+          log(`Order ${res.orderId} partially executed. ${res.side} ${orres.typederType} ${res.quantity} @ ${res.price}. Available: ${availableAmount}`);
         } else {
           log(`Ignored status ${res.status}`)
           isLocked = false;
@@ -170,8 +170,8 @@ function autoTrade(pair, interval, chart) {
           accumulatedProfitMetric.set(profit);
           sellCyclesMetric.inc();
           log(`Order ${res.orderId} fully executed. Available: ${availableAmount}`);
-        } else if (orderStatus == 'PARTIALLY_FILLED') {
-          log(`Order ${orderId} partially executed. ${side} ${orderType} ${quantity} @ ${price}. Available: ${availableAmount}`);
+        } else if (res.status == 'PARTIALLY_FILLED') {
+          log(`Order ${res.orderId} partially executed. ${res.side} ${orres.typederType} ${res.quantity} @ ${res.price}. Available: ${availableAmount}`);
         } else {
           log(`Unexpected status ${res.status}`)
           isLocked = false;
