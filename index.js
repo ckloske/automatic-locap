@@ -1,8 +1,6 @@
 const pm2 = require('pm2');
 const config = require('./config.json');
 
-console.log(config);
-
 pm2.connect(function (err) {
   if (err) {
     console.error(err);
@@ -18,8 +16,6 @@ pm2.connect(function (err) {
       name: key,
       args
     };
-
-    console.log(options);
 
     pm2.start(options, function (err, apps) {
       pm2.disconnect();   // Disconnects from PM2
