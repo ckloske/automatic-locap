@@ -100,6 +100,7 @@ function autoTrade(pair, interval, chart) {
   let ohlc = binance.ohlc(chart);
 
   lastPriceMetric.set(lastClosePrice);
+  availableAmountMetric.set(availableAmount);
 
   const FILTERS = global.filters[pair];
 
@@ -133,7 +134,6 @@ function autoTrade(pair, interval, chart) {
           buyPrice = res.price;
           buyQuantity = res.executedQty;
           lastOrderID = 0;
-          availableAmountMetric.set(availableAmount);
           const profit = ((availableAmount / STARTING_AMOUNT) - 1) * 100;
 
           log(`Order ${res.orderId} fully executed. Available: ${availableAmount}`);
@@ -166,7 +166,6 @@ function autoTrade(pair, interval, chart) {
           buyPrice = 0;
           buyQuantity = 0;
           lastOrderID = 0;
-          availableAmountMetric.set(availableAmount);
           accumulatedProfitMetric.set(profit);
           sellCyclesMetric.inc();
           log(`Order ${res.orderId} fully executed. Available: ${availableAmount}`);
