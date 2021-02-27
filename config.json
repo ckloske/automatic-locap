@@ -1,6 +1,6 @@
 {
   "ETHBTC": {
-    "startingAmount": 0.015,
+    "startingAmount": 0.01,
     "interval": "1m",
     "stdFactor": 2,
     "samples": 15,
